@@ -1,3 +1,6 @@
+mod utils;
+use utils::*;
+
 fn main() {
-    println!("Hello, world!");
+    println!("WIP stalker");
 }
