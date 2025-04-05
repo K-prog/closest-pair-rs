@@ -1,5 +1,34 @@
+/// A 2D point with unsigned integer coordinates.
+#[derive(Debug, Clone, Copy)]
+pub struct Point {
+    pub x: u32,
+    pub y: u32,
+}
 
+/// Packs two positive numbers into a single number using bit manipulation.
+///
+/// This function takes two positive integers and combines them into a single value
+/// by using the specified number of bits for each number. The first number is shifted
+/// left and then combined with the second number.
+///
+/// # Arguments
+///
+/// * `num1` - First positive integer to pack
+/// * `num2` - Second positive integer to pack
+/// * `bits` - Number of bits to use for each number
+///
+/// # Returns
+///
+/// A u64 containing both numbers packed together
+///
+/// # Examples
+///
+/// ```
+/// let packed = pack_numbers(123, 456, 16);
+/// assert_eq!(unpack_numbers(packed, 16), (123, 456));
+/// ```
 pub fn pack_numbers(num1: u32, num2: u32, bits: u8) -> u64 {
+
     let mask = (1u64 << bits) - 1;
     
     // handling of negative numbers
@@ -23,7 +52,57 @@ pub fn pack_numbers(num1: u32, num2: u32, bits: u8) -> u64 {
     ((num1 as u64 & mask) << bits) | (num2 as u64 & mask)
 }
 
+/// Calculates the Euclidean distance between two points.
+///
+/// # Arguments
+///
+/// * `p1` - The first point
+/// * `p2` - The second point
+///
+/// # Returns
+///
+/// The Euclidean distance between p1 and p2 as a f32 value.
+///
+/// # Examples
+///
+/// ```
+/// let p1 = Point { x: 0, y: 0 };
+/// let p2 = Point { x: 3, y: 4 };
+/// assert_eq!(eucid_distance(p1, p2), 5.0);
+/// ```
+pub fn eucid_distance(p1: Point, p2: Point) -> f32 {
+    
+    let dx = p1.x.abs_diff(p2.x) as f32;
+    let dy = p1.y.abs_diff(p2.y) as f32;
+    
+    (dx * dx + dy * dy).sqrt()
+}
+
+/// Unpacks a single number into two positive numbers.
+///
+/// This function extracts two positive integers that were previously combined
+/// using the `pack_numbers` function, with each number using the specified 
+/// number of bits.
+///
+/// # Arguments
+///
+/// * `packed` - The combined number to unpack
+/// * `bits` - Number of bits used for each original number
+///
+/// # Returns
+///
+/// A tuple containing the two extracted positive integers (num1, num2)
+///
+/// # Examples
+///
+/// ```
+/// let packed = pack_numbers(42, 127, 8);
+/// let (a, b) = unpack_numbers(packed, 8);
+/// assert_eq!(a, 42);
+/// assert_eq!(b, 127);
+/// ```
 pub fn unpack_numbers(packed: u64, bits: u8) -> (u32, u32) {
+
     let mask = (1 << bits) - 1;
     // let sign_bit = 1 << (bits - 1);
     
@@ -49,7 +128,7 @@ pub fn unpack_numbers(packed: u64, bits: u8) -> (u32, u32) {
 
 
 #[cfg(test)]
-mod tests {
+mod packing_unpacking {
     use super::*;
 
     #[test]
@@ -143,5 +222,53 @@ mod tests {
         
         assert_eq!(num1, unpacked1);
         assert_eq!(num2, unpacked2);
+    }
+}
+
+mod eucid_distance {
+    use super::*;
+
+    #[test]
+    fn test_zero_distance() {
+        let p1 = Point { x: 0, y: 0 };
+        let p2 = Point { x: 0, y: 0 };
+        assert_eq!(eucid_distance(p1, p2), 0.0);
+    }
+
+    #[test]
+    fn test_horizontal_distance() {
+        let p1 = Point { x: 0, y: 0 };
+        let p2 = Point { x: 3, y: 0 };
+        assert_eq!(eucid_distance(p1, p2), 3.0);
+    }
+
+    #[test]
+    fn test_vertical_distance() {
+        let p1 = Point { x: 0, y: 0 };
+        let p2 = Point { x: 0, y: 4 };
+        assert_eq!(eucid_distance(p1, p2), 4.0);
+    }
+
+    #[test]
+    fn test_pythagorean_triple() {
+        let p1 = Point { x: 0, y: 0 };
+        let p2 = Point { x: 3, y: 4 };
+        assert_eq!(eucid_distance(p1, p2), 5.0);
+    }
+
+    #[test]
+    fn test_reverse_direction() {
+        let p1 = Point { x: 5, y: 5 };
+        let p2 = Point { x: 2, y: 1 };
+        let distance = eucid_distance(p1, p2);
+        assert_eq!(distance, 5.0);
+    }
+
+    #[test]
+    fn test_large_numbers() {
+        let p1 = Point { x: 1000, y: 2000 };
+        let p2 = Point { x: 4000, y: 6000 };
+        let expected = ((3000.0_f32 * 3000.0) + (4000.0_f32 * 4000.0)).sqrt();
+        assert_eq!(eucid_distance(p1, p2), expected);
     }
 }
