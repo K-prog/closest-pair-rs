@@ -6,3 +6,7 @@ edition = "2021"
 [dependencies]
 rand = "0.8"
 divan = "0.1.18"
+
+[[bench]]
+name = "benchmark"
+harness = false

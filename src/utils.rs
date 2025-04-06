@@ -24,6 +24,8 @@ pub struct Point {
 /// # Examples
 ///
 /// ```
+/// use closest_pair_rs::utils::*;
+/// 
 /// let packed = pack_numbers(123, 456, 16);
 /// assert_eq!(unpack_numbers(packed, 16), (123, 456));
 /// ```
@@ -66,6 +68,8 @@ pub fn pack_numbers(num1: u32, num2: u32, bits: u8) -> u64 {
 /// # Examples
 ///
 /// ```
+/// use closest_pair_rs::utils::*;
+/// 
 /// let p1 = Point { x: 0, y: 0 };
 /// let p2 = Point { x: 3, y: 4 };
 /// assert_eq!(eucid_distance(p1, p2), 5.0);
@@ -96,6 +100,8 @@ pub fn eucid_distance(p1: Point, p2: Point) -> f32 {
 /// # Examples
 ///
 /// ```
+/// use closest_pair_rs::utils::*;
+/// 
 /// let packed = pack_numbers(42, 127, 8);
 /// let (a, b) = unpack_numbers(packed, 8);
 /// assert_eq!(a, 42);

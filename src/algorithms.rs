@@ -1,7 +1,6 @@
 use std::cmp::{min};
 use crate::utils::*;
 
-
 /// Find closest pair of points using brute force algorithm.
 ///
 /// This function compares every possible pair of points to find the closest pair.
@@ -27,12 +26,15 @@ use crate::utils::*;
 /// # Examples
 ///
 /// ```
+/// use closest_pair_rs::utils::Point;
+/// use closest_pair_rs::algorithms::closest_pair_brute_force;
+/// 
 /// let points = vec![
 ///     Point { x: 0, y: 0 },
 ///     Point { x: 3, y: 0 },
 ///     Point { x: 0, y: 4 }
 /// ];
-/// let (p1, p2, distance) = closest_pair_brute_force(points);
+/// let (p1, p2, distance) =  closest_pair_brute_force(points);
 /// assert_eq!(distance, 3.0);
 /// ```
 pub fn closest_pair_brute_force(points: Vec<Point>) -> (Point, Point, f32) {
@@ -180,6 +182,9 @@ fn rec(xsorted: Vec<Point>, ysorted: Vec<Point>) -> (Point, Point, f32) {
 /// # Examples
 ///
 /// ```
+/// use closest_pair_rs::utils::Point;
+/// use closest_pair_rs::algorithms::closest_pair_optimized;
+/// 
 /// let points = vec![
 ///     Point { x: 0, y: 0 },
 ///     Point { x: 10, y: 10 },
@@ -237,6 +242,9 @@ pub fn closest_pair_optimized(points: Vec<Point>) -> (Point, Point, f32) {
 /// # Examples
 ///
 /// ```
+/// use closest_pair_rs::utils::Point;
+/// use closest_pair_rs::algorithms::closest_pair_bit_shift;
+/// 
 /// let points = vec![
 ///     Point { x: 0, y: 0 },
 ///     Point { x: 10, y: 10 },
@@ -393,30 +401,25 @@ mod closest_pair_optimized_tests {
     fn test_random_points() {
         use rand::Rng;
         let mut rng = rand::thread_rng();
-        
-        // Generate 100 random points
+        let bits = 31;
+
+        // Generate 10000 random points
         let mut points = Vec::new();
-        for _ in 0..100 {
+        for _ in 0..10000 {
             points.push(Point {
-                x: rng.gen_range(0..1000),
-                y: rng.gen_range(0..1000)
+                x: rng.gen_range(0..(u32::pow(2, bits))),
+                y: rng.gen_range(0..(u32::pow(2, bits)))
             });
         }
         
         // Run closest pair algorithm
-        let (p1, p2, dist) = closest_pair_optimized(points.clone());
+        let (_, _, dist) = closest_pair_optimized(points.clone());
         
         // Compare with brute force result for validation
-        let (bf_p1, bf_p2, bf_dist) = closest_pair_brute_force(points);
+        let (_, _, bf_dist) = closest_pair_brute_force(points);
         
-        // The results should match
-        assert!((dist - bf_dist).abs() < 0.001);
-        
-        // Check that the points match (in either order)
-        assert!(
-            (p1.x == bf_p1.x && p1.y == bf_p1.y && p2.x == bf_p2.x && p2.y == bf_p2.y) ||
-            (p1.x == bf_p2.x && p1.y == bf_p2.y && p2.x == bf_p1.x && p2.y == bf_p1.y)
-        );
+        // Distances should match, points acn be different
+        assert!(dist == bf_dist);
     }
 
     #[test]
@@ -523,30 +526,24 @@ mod closest_pair_bit_shift_tests {
     fn test_random_points() {
         use rand::Rng;
         let mut rng = rand::thread_rng();
-        
-        // Generate 100 random points
+        let bits = 31;
+        // Generate 10000 random points
         let mut points = Vec::new();
-        for _ in 0..100 {
+        for _ in 0..10000 {
             points.push(Point {
-                x: rng.gen_range(0..1000),
-                y: rng.gen_range(0..1000)
+                x: rng.gen_range(0..(u32::pow(2, bits))),
+                y: rng.gen_range(0..(u32::pow(2, bits)))
             });
         }
         
         // Run closest pair algorithm
-        let (p1, p2, dist) = closest_pair_bit_shift(points.clone(), 16);
+        let (_, _, dist) = closest_pair_bit_shift(points.clone(), 32);
         
         // Compare with brute force result for validation
-        let (bf_p1, bf_p2, bf_dist) = closest_pair_brute_force(points);
+        let (_, _, bf_dist) = closest_pair_brute_force(points);
         
-        // The results should match
-        assert!((dist - bf_dist).abs() < 0.001);
-        
-        // Check that the points match (in either order)
-        assert!(
-            (p1.x == bf_p1.x && p1.y == bf_p1.y && p2.x == bf_p2.x && p2.y == bf_p2.y) ||
-            (p1.x == bf_p2.x && p1.y == bf_p2.y && p2.x == bf_p1.x && p2.y == bf_p1.y)
-        );
+        // Distances should match, points acn be different
+        assert!(dist == bf_dist);
     }
 
     #[test]
