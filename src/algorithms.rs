@@ -34,10 +34,10 @@ use crate::utils::*;
 ///     Point { x: 3, y: 0 },
 ///     Point { x: 0, y: 4 }
 /// ];
-/// let (p1, p2, distance) =  closest_pair_brute_force(points);
+/// let (p1, p2, distance) =  closest_pair_brute_force(&points);
 /// assert_eq!(distance, 3.0);
 /// ```
-pub fn closest_pair_brute_force(points: Vec<Point>) -> (Point, Point, f32) {
+pub fn closest_pair_brute_force(points: &[Point]) -> (Point, Point, f32) {
     
     // Check if points vector is empty
     if points.is_empty() {
@@ -56,7 +56,7 @@ pub fn closest_pair_brute_force(points: Vec<Point>) -> (Point, Point, f32) {
     
     for i in 0..points.len() {
         for j in (i + 1)..points.len() {
-            let dist = eucid_distance(points[i], points[j]);
+            let dist = eucid_distance(&points[i], &points[j]);
             if dist < min_dist {
                 min_dist = dist;
                 point1 = points[i];
@@ -92,21 +92,23 @@ pub fn closest_pair_brute_force(points: Vec<Point>) -> (Point, Point, f32) {
 /// * The first point of the closest pair
 /// * The second point of the closest pair
 /// * The distance between these points as a f32
-fn rec(xsorted: Vec<Point>, ysorted: Vec<Point>) -> (Point, Point, f32) {
+fn rec(xsorted: &[Point], ysorted: &[Point]) -> (Point, Point, f32) {
 
     let n = xsorted.len();
     
     if n <= 3 {
         return closest_pair_brute_force(xsorted);
     } else {
+        let mid_idx = n / 2;
         let midpoint = xsorted[n / 2];
-        let xsorted_left = xsorted[..n / 2].to_vec();
-        let xsorted_right = xsorted[n / 2..].to_vec();
+
+        let xsorted_left = &xsorted[..mid_idx];
+        let xsorted_right = &xsorted[mid_idx..];
         
-        let mut ysorted_left = Vec::new();
-        let mut ysorted_right = Vec::new();
+        let mut ysorted_left = Vec::with_capacity(mid_idx);
+        let mut ysorted_right = Vec::with_capacity(n - mid_idx);
         
-        for &point in &ysorted {
+        for &point in ysorted {
             if point.x <= midpoint.x {
                 ysorted_left.push(point);
             } else {
@@ -114,8 +116,8 @@ fn rec(xsorted: Vec<Point>, ysorted: Vec<Point>) -> (Point, Point, f32) {
             }
         }
         
-        let (p1_left, p2_left, delta_left) = rec(xsorted_left, ysorted_left);
-        let (p1_right, p2_right, delta_right) = rec(xsorted_right, ysorted_right);
+        let (p1_left, p2_left, delta_left) = rec(xsorted_left, &ysorted_left);
+        let (p1_right, p2_right, delta_right) = rec(xsorted_right, &ysorted_right);
         
         let (mut p1, mut p2, mut delta) = if delta_left < delta_right {
             (p1_left, p2_left, delta_left)
@@ -127,10 +129,11 @@ fn rec(xsorted: Vec<Point>, ysorted: Vec<Point>) -> (Point, Point, f32) {
         let mut in_band = Vec::new();
         let midpoint_x = midpoint.x;
         
-        for &point in &ysorted {
+        for &point in ysorted {
             // Notice we need to handle unsigned integers carefully
-            let left_bound = if midpoint_x > (delta as u32) { midpoint_x - (delta as u32) } else { 0 };
-            let right_bound = midpoint_x + (delta as u32);
+            let delta_u32 = delta as u32;
+            let left_bound = midpoint_x.saturating_sub(delta_u32);
+            let right_bound = midpoint_x.saturating_add(delta_u32);
             
             if point.x >= left_bound && point.x <= right_bound {
                 in_band.push(point);
@@ -140,7 +143,7 @@ fn rec(xsorted: Vec<Point>, ysorted: Vec<Point>) -> (Point, Point, f32) {
         // Check points in the band
         for i in 0..in_band.len() {
             for j in (i + 1)..min(i + 7, in_band.len()) {
-                let d = eucid_distance(in_band[i], in_band[j]);
+                let d = eucid_distance(&in_band[i], &in_band[j]);
                 if d < delta {
                     p1 = in_band[i];
                     p2 = in_band[j];
@@ -213,7 +216,7 @@ pub fn closest_pair_optimized(points: Vec<Point>) -> (Point, Point, f32) {
     let mut ysorted = points;
     ysorted.sort_by(|a, b| a.y.cmp(&b.y));
     
-    rec(xsorted, ysorted)
+    rec(&xsorted, &ysorted)
 }
 
 /// Find closest pair of points using bit shift packing technique.
@@ -277,18 +280,18 @@ pub fn closest_pair_bit_shift(points: Vec<Point>, bits: u8) -> (Point, Point, f3
         .map(|p| pack_numbers(p.x, p.y, bits))
         .collect();
     
-    // Sort the packed values
-    packed.sort();
+    // can use unstable sort as we do not care about the order of identical elements, win
+    packed.sort_unstable();
         
     for i in 0..n-1 {
+        let (x1, y1) = unpack_numbers(packed[i], bits); 
+        let p1 = Point { x: x1, y: y1 };
+
         for j in i+1..std::cmp::min(n, i+bits as usize+1) {
-            let (x1, y1) = unpack_numbers(packed[i], bits);
             let (x2, y2) = unpack_numbers(packed[j], bits);
-            
-            let p1 = Point { x: x1, y: y1 };
             let p2 = Point { x: x2, y: y2 };
             
-            let distance = eucid_distance(p1, p2);
+            let distance = eucid_distance(&p1, &p2);
             
             if distance < min_dist {
                 min_dist = distance;
@@ -403,9 +406,9 @@ mod closest_pair_optimized_tests {
         let mut rng = rand::thread_rng();
         let bits = 31;
 
-        // Generate 10000 random points
+        // Generate 50000 random points
         let mut points = Vec::new();
-        for _ in 0..10000 {
+        for _ in 0..50000 {
             points.push(Point {
                 x: rng.gen_range(0..(u32::pow(2, bits))),
                 y: rng.gen_range(0..(u32::pow(2, bits)))
@@ -416,7 +419,7 @@ mod closest_pair_optimized_tests {
         let (_, _, dist) = closest_pair_optimized(points.clone());
         
         // Compare with brute force result for validation
-        let (_, _, bf_dist) = closest_pair_brute_force(points);
+        let (_, _, bf_dist) = closest_pair_brute_force(&points);
         
         // Distances should match, points acn be different
         assert!(dist == bf_dist);
@@ -527,9 +530,9 @@ mod closest_pair_bit_shift_tests {
         use rand::Rng;
         let mut rng = rand::thread_rng();
         let bits = 31;
-        // Generate 10000 random points
+        // Generate 50000 random points
         let mut points = Vec::new();
-        for _ in 0..10000 {
+        for _ in 0..50000 {
             points.push(Point {
                 x: rng.gen_range(0..(u32::pow(2, bits))),
                 y: rng.gen_range(0..(u32::pow(2, bits)))
@@ -540,7 +543,7 @@ mod closest_pair_bit_shift_tests {
         let (_, _, dist) = closest_pair_bit_shift(points.clone(), 32);
         
         // Compare with brute force result for validation
-        let (_, _, bf_dist) = closest_pair_brute_force(points);
+        let (_, _, bf_dist) = closest_pair_brute_force(&points);
         
         // Distances should match, points acn be different
         assert!(dist == bf_dist);

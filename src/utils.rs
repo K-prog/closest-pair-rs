@@ -1,4 +1,5 @@
 /// A 2D point with unsigned integer coordinates.
+// #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct Point {
     pub x: u32,
@@ -72,14 +73,14 @@ pub fn pack_numbers(num1: u32, num2: u32, bits: u8) -> u64 {
 /// 
 /// let p1 = Point { x: 0, y: 0 };
 /// let p2 = Point { x: 3, y: 4 };
-/// assert_eq!(eucid_distance(p1, p2), 5.0);
+/// assert_eq!(eucid_distance(&p1, &p2), 5.0);
 /// ```
-pub fn eucid_distance(p1: Point, p2: Point) -> f32 {
-    
-    let dx = p1.x.abs_diff(p2.x) as f32;
-    let dy = p1.y.abs_diff(p2.y) as f32;
-    
-    (dx * dx + dy * dy).sqrt()
+
+#[inline]
+pub fn eucid_distance(p1: &Point, p2: &Point) -> f32 {
+    let dx = p1.x as i64 - p2.x as i64;
+    let dy = p1.y as i64 - p2.y as i64;
+    ((dx * dx + dy * dy) as f32).sqrt()
 }
 
 /// Unpacks a single number into two positive numbers.
@@ -131,8 +132,7 @@ pub fn unpack_numbers(packed: u64, bits: u8) -> (u32, u32) {
     // };
     (num1 as u32 , num2 as u32)
 }   
-
-
+ 
 #[cfg(test)]
 mod packing_unpacking {
     use super::*;
@@ -238,35 +238,35 @@ mod eucid_distance {
     fn test_zero_distance() {
         let p1 = Point { x: 0, y: 0 };
         let p2 = Point { x: 0, y: 0 };
-        assert_eq!(eucid_distance(p1, p2), 0.0);
+        assert_eq!(eucid_distance(&p1, &p2), 0.0);
     }
 
     #[test]
     fn test_horizontal_distance() {
         let p1 = Point { x: 0, y: 0 };
         let p2 = Point { x: 3, y: 0 };
-        assert_eq!(eucid_distance(p1, p2), 3.0);
+        assert_eq!(eucid_distance(&p1, &p2), 3.0);
     }
 
     #[test]
     fn test_vertical_distance() {
         let p1 = Point { x: 0, y: 0 };
         let p2 = Point { x: 0, y: 4 };
-        assert_eq!(eucid_distance(p1, p2), 4.0);
+        assert_eq!(eucid_distance(&p1, &p2), 4.0);
     }
 
     #[test]
     fn test_pythagorean_triple() {
         let p1 = Point { x: 0, y: 0 };
         let p2 = Point { x: 3, y: 4 };
-        assert_eq!(eucid_distance(p1, p2), 5.0);
+        assert_eq!(eucid_distance(&p1, &p2), 5.0);
     }
 
     #[test]
     fn test_reverse_direction() {
         let p1 = Point { x: 5, y: 5 };
         let p2 = Point { x: 2, y: 1 };
-        let distance = eucid_distance(p1, p2);
+        let distance = eucid_distance(&p1, &p2);
         assert_eq!(distance, 5.0);
     }
 
@@ -275,6 +275,6 @@ mod eucid_distance {
         let p1 = Point { x: 1000, y: 2000 };
         let p2 = Point { x: 4000, y: 6000 };
         let expected = ((3000.0_f32 * 3000.0) + (4000.0_f32 * 4000.0)).sqrt();
-        assert_eq!(eucid_distance(p1, p2), expected);
+        assert_eq!(eucid_distance(&p1, &p2), expected);
     }
 }
