@@ -6,7 +6,7 @@ fn main() {
     divan::main();
 }
 
-#[divan::bench(args = [1000, 10000, 100000, 1000000, 5000000])]
+#[divan::bench(args = [1000, 10000, 100000, 1000000, 5000000, 7000000, 10000000])]
 fn test_closest_pair_bit_shift(n: u32) -> (Point, Point, f32) {
     use rand::Rng;
     let mut rng = rand::thread_rng();
@@ -39,7 +39,7 @@ fn test_closest_pair_bit_shift(n: u32) -> (Point, Point, f32) {
     (p1, p2, dist)
 }
 
-#[divan::bench(args = [1000, 10000, 100000, 1000000, 5000000])]
+#[divan::bench(args = [1000, 10000, 100000, 1000000, 5000000, 7000000, 10000000])]
 fn test_closest_pair_optimized(n: u32) -> (Point, Point, f32) {
     use rand::Rng;
     let mut rng = rand::thread_rng();

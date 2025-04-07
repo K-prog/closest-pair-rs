@@ -75,7 +75,6 @@ pub fn pack_numbers(num1: u32, num2: u32, bits: u8) -> u64 {
 /// let p2 = Point { x: 3, y: 4 };
 /// assert_eq!(eucid_distance(&p1, &p2), 5.0);
 /// ```
-
 #[inline]
 pub fn eucid_distance(p1: &Point, p2: &Point) -> f32 {
     let dx = p1.x as i64 - p2.x as i64;
@@ -231,6 +230,7 @@ mod packing_unpacking {
     }
 }
 
+#[cfg(test)]
 mod eucid_distance {
     use super::*;
 

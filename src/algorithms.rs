@@ -97,7 +97,7 @@ fn rec(xsorted: &[Point], ysorted: &[Point]) -> (Point, Point, f32) {
     let n = xsorted.len();
     
     if n <= 3 {
-        return closest_pair_brute_force(xsorted);
+        closest_pair_brute_force(xsorted)
     } else {
         let mid_idx = n / 2;
         let midpoint = xsorted[n / 2];
@@ -287,8 +287,8 @@ pub fn closest_pair_bit_shift(points: Vec<Point>, bits: u8) -> (Point, Point, f3
         let (x1, y1) = unpack_numbers(packed[i], bits); 
         let p1 = Point { x: x1, y: y1 };
 
-        for j in i+1..std::cmp::min(n, i+bits as usize+1) {
-            let (x2, y2) = unpack_numbers(packed[j], bits);
+        for j in packed.iter().take(std::cmp::min(n, i+bits as usize+1)).skip(i+1) {
+            let (x2, y2) = unpack_numbers(*j, bits);
             let p2 = Point { x: x2, y: y2 };
             
             let distance = eucid_distance(&p1, &p2);
@@ -434,6 +434,7 @@ mod closest_pair_optimized_tests {
     }   
 }
 
+#[cfg(test)]
 mod closest_pair_bit_shift_tests {
     use super::*;
     use std::f32;
