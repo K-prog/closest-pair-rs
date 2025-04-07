@@ -31,7 +31,7 @@ The probability of finding the closest pair increases as you increase the search
 ![App Screenshot](https://miro.medium.com/v2/resize:fit:4800/format:webp/1*xPKFV7XSN6m7YnFGLrz7_Q.png)
 
 ## Benchmark
-To you benchmark in your local machine
+benchmark in your local machine
 ```bash
 cargo bench
 ```
